@@ -1,0 +1,164 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="/style/style.css" />
+    <style>
+      body {
+        font-family: 'Segoe UI', 'Apple SD Gothic Neo', 'NanumSquare', 'Nunito', Arial, sans-serif;
+        background: #f8fafc;
+        margin: 0;
+        padding: 24px;
+        font-size: 16px;
+        color: #333;
+        letter-spacing: -0.2px;
+      }
+      .container {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+        padding: 24px 20px 20px 20px;
+        max-width: 400px;
+        margin: 0 auto;
+      }
+      h2 {
+        margin-top: 0;
+        font-size: 20px;
+        font-weight: 600;
+        text-align: left;
+      }
+      .input-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+        font-size: 16px;
+        border-radius: 22px;
+        width:100%;
+      }
+      .input-field{
+        border: 1px solid rgb(235, 235, 235);
+        border-radius: 6px;
+        width: 180px;
+      }
+      input[type=\"password\"], input[type=\"text\"] {
+        flex: 1;
+        padding: 8px;
+        outline: none;
+        transition: border 0.2s;
+     
+      }
+      input[type=\"password\"]:focus, input[type=\"text\"]:focus {
+        border: 1.5px solid #6366f1;
+        
+        
+      }
+      button {
+        background: #292929;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      button:hover {
+        background: #000000;
+      }
+      .outline{
+        background-color: #fff;
+        border:1px solid #d1d1d1;
+        color: #222;
+      }
+      .outline:hover{
+        background-color: #f0f0f0;
+        border:1px solid #d1d1d1;
+        color: #222;
+      }
+      .desc {
+        font-size: 14px;
+        color: #64748b;
+        margin-bottom: 8px;
+        text-align: left;
+      }
+      .body-3 {
+        font-size: 12px;
+        color: #8794a5;
+        text-align: left;
+        margin-bottom: 16px;
+        line-height:16px;
+      }
+      .prompt-box{
+        background-color: #f5f5f7;
+        padding:8px;
+        border-radius: 4px;
+      }
+      .subtitle{
+        margin-top:32px;
+        font-size:14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>AI 아이콘 생성기</h2>
+      <div class="desc">OpenAI API 키 입력 후 원하는 아이콘을 생성해 보세요.</div>
+      <div class="body-3">"사용자별 API 키 직접 입력" 방식은 사용자가 입력한 키를 figma.clientStorage 에 저장하여 서버 없이도 보안을 유지할 수 있고, 각 사용자가 본인 키로 안전하게 사용할 수 있습니다.</div>
+      <div class="input-row">
+        <input class="input-field" id="api-key" type="password" placeholder="OpenAI API 키" />
+        <button class="outline" id="save-key">API Key</button>
+      </div>
+      <div class="input-row">
+        <input class="input-field" id="prompt" type="text" placeholder="예: 돋보기 아이콘을 만들어줘" />
+        <button id="generate">아이콘 생성</button>
+      </div>
+      <div>
+        <p class="subtitle">System prompt</p>
+      </div>
+      <div class="prompt-box">
+        <p class="body-3">You are an icon designer who strictly follows the design guidelines below to create SVG icons.
+          <br/><br/>
+          Design System Rules:<br/>
+          1. All strokes are 1.5px wide.<br/>
+          2. Frame size is 24x24 pixels.<br/>
+          3. Corner smoothing is 60%.<br/>
+          4. All icons are placed on a 24px grid, with 2px padding (design within a 20x20 area).<br/>
+          5. Separate elements by at least 1.5px.<br/>
+          6. Exception: Bottom-right elements can be separated by up to 2px.<br/>
+          7. Use radius:<br/>
+             - Large (4px): For outer frames or big rectangular shapes.<br/>
+             - Medium (3px): For medium-sized supporting shapes.<br/>
+             - Small (1px): For fine details or acute corners.<br/>
+          8. Use text only when absolutely necessary:<br/>
+             - English and numbers → Nunito font<br/>
+             - Korean → 나눔스퀘어 라운드<br/>
+          9. Output only the clean, minimal SVG without extra metadata. No background, no fill color unless specified. Center the design inside the 24x24 frame.<br/>
+          When generating icons, strictly adhere to these constraints.<br/>
+          </p>
+      </div>
+    </div>
+    <script>
+      // API 키 저장
+      document.getElementById('save-key').onclick = () => {
+        const apiKey = document.getElementById('api-key').value;
+        parent.postMessage({ pluginMessage: { type: 'save-api-key', apiKey } }, '*');
+        alert('API 키가 저장되었습니다.');
+      };
+
+      // 아이콘 생성
+      document.getElementById('generate').onclick = () => {
+        const prompt = document.getElementById('prompt').value;
+        parent.postMessage({ pluginMessage: { type: 'generate-icon', prompt } }, '*');
+      };
+
+      // 저장된 키 불러오기(있으면 입력란에 표시)
+      window.onmessage = (event) => {
+        const { apiKey } = event.data.pluginMessage || {};
+        if (apiKey) {
+          document.getElementById('api-key').value = apiKey;
+        }
+      };
+      // 플러그인 실행 시 키 요청
+      parent.postMessage({ pluginMessage: { type: 'get-api-key' } }, '*');
+    </script>
+  </body>
+</html>
