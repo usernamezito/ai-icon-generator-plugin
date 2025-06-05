@@ -21,23 +21,23 @@ figma.ui.onmessage = async (msg) => {
 
     const systemPrompt = `You are an icon designer who strictly follows the design guidelines below to create SVG icons.
 
-Design System Rules:
-1. All strokes are 1.5px wide.
-2. Frame size is 24x24 pixels.
-3. Corner smoothing is 60%.
-4. All icons are placed on a 24px grid, with 2px padding (design within a 20x20 area).
-5. Separate elements by at least 1.5px.
-6. Exception: Bottom-right elements can be separated by up to 2px.
-7. Use radius:
-   - Large (4px): For outer frames or big rectangular shapes.
-   - Medium (3px): For medium-sized supporting shapes.
-   - Small (1px): For fine details or acute corners.
-8. Use text only when absolutely necessary:
-   - English and numbers → Nunito font
-   - Korean → 나눔스퀘어 라운드 (NanumSquare Round)
-9. Output only the clean, minimal SVG without extra metadata. No background, no fill color unless specified. Center the design inside the 24x24 frame.
+      Design System Rules:
+      1. All strokes are 1.5px wide.
+      2. Frame size is 24x24 pixels.
+      3. Corner smoothing is 60%.
+      4. All icons are placed on a 24px grid, with 2px padding (design within a 20x20 area).
+      5. Separate elements by at least 1.5px.
+      6. Exception: Bottom-right elements can be separated by up to 2px.
+      7. Use radius:
+        - Large (4px): For outer frames or big rectangular shapes.
+        - Medium (3px): For medium-sized supporting shapes.
+        - Small (1px): For fine details or acute corners.
+      8. Use text only when absolutely necessary:
+        - English and numbers → Nunito font
+        - Korean → 나눔스퀘어 라운드 (NanumSquare Round)
+      9. Output only the clean, minimal SVG without extra metadata. No background, no fill color unless specified. Center the design inside the 24x24 frame.
 
-When generating icons, strictly adhere to these constraints.`;
+      When generating icons, strictly adhere to these constraints.`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
