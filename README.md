@@ -1,3 +1,9 @@
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+# ai-icon-generator-plugin
+=======
+>>>>>>> 54ace9b (Update UI: inline CSS for Figma plugin compatibility)
 # AI Icon Generator for Figma
 
 This is a Figma plugin that automatically generates SVG icons from text prompts using OpenAI.  
@@ -87,3 +93,7 @@ MIT License
 ## 🙋 Contact / Contributing
 
 - Author: Hyein Kim
+<<<<<<< HEAD
+=======
+>>>>>>> 7d16a00 (Initial commit: AI Icon Generator for Figma)
+>>>>>>> 54ace9b (Update UI: inline CSS for Figma plugin compatibility)
