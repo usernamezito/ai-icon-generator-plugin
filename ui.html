@@ -26,7 +26,7 @@
       .input-row {
         display: flex;
         gap: 8px;
-        margin-bottom: 12px;
+        margin-bottom: 8px;
         font-size: 16px;
         border-radius: 22px;
         width:100%;
@@ -34,20 +34,32 @@
       .input-field{
         border: 1px solid rgb(235, 235, 235);
         border-radius: 6px;
-        width: 180px;
+        padding: 8px;
+        width: 200px
+      }
+      .select-container
+      {
+        margin-bottom: 8px; 
+      }
+      .select-field{
+        border: 1px solid rgb(235, 235, 235);
+        border-radius: 6px;
+        padding: 8px 0px;
+        width: 76px;
+      }
+      select{
+        width:100px;
       }
       input[type=\"password\"], input[type=\"text\"] {
         flex: 1;
-        padding: 8px;
         outline: none;
         transition: border 0.2s;
       }
       input[type=\"password\"]:focus, input[type=\"text\"]:focus {
-        border: 1.5px solid #6366f1;
-        
-        
+        border: 1px solid #bababa;
       }
       button {
+        width: 100px;
         background: #292929;
         color: #fff;
         border: none;
@@ -100,62 +112,69 @@
       <h2>AI 아이콘 생성기</h2>
       <div class="desc">OpenAI API 키 입력 후 원하는 아이콘을 생성해 보세요.</div>
       <div class="body-3">"사용자별 API 키 직접 입력" 방식은 사용자가 입력한 키를 figma.clientStorage 에 저장하여 서버 없이도 보안을 유지할 수 있고, 각 사용자가 본인 키로 안전하게 사용할 수 있습니다.</div>
+      <div class="select-container">
+        <select class="select-field" id="api-type">
+          <option value="openai">OpenAI</option>
+          <option value="gemini">Gemini</option>
+        </select>
+      </div>
       <div class="input-row">
-        <input class="input-field" id="api-key" type="password" placeholder="OpenAI API 키" />
-        <button class="outline" id="save-key">API Key</button>
+        <input class="input-field" id="api-key" type="password" placeholder="API Key" />
+        <button class="outline" id="save-key">API Key 저장</button>
       </div>
       <div class="input-row">
         <input class="input-field" id="prompt" type="text" placeholder="예: 돋보기 아이콘을 만들어줘" />
         <button id="generate">아이콘 생성</button>
-      </div>
-      <div>
-        <p class="subtitle">System prompt</p>
-      </div>
-      <div class="prompt-box">
-        <p class="body-3">You are an icon designer who strictly follows the design guidelines below to create SVG icons.
-          <br/><br/>
-          Design System Rules:<br/>
-          1. All strokes are 1.5px wide.<br/>
-          2. Frame size is 24x24 pixels.<br/>
-          3. Corner smoothing is 60%.<br/>
-          4. All icons are placed on a 24px grid, with 2px padding (design within a 20x20 area).<br/>
-          5. Separate elements by at least 1.5px.<br/>
-          6. Exception: Bottom-right elements can be separated by up to 2px.<br/>
-          7. Use radius:<br/>
-             - Large (4px): For outer frames or big rectangular shapes.<br/>
-             - Medium (3px): For medium-sized supporting shapes.<br/>
-             - Small (1px): For fine details or acute corners.<br/>
-          8. Use text only when absolutely necessary:<br/>
-             - English and numbers → Nunito font<br/>
-             - Korean → 나눔스퀘어 라운드<br/>
-          9. Output only the clean, minimal SVG without extra metadata. No background, no fill color unless specified. Center the design inside the 24x24 frame.<br/>
-          When generating icons, strictly adhere to these constraints.<br/>
-          </p>
       </div>
     </div>
     <script>
       // API 키 저장
       document.getElementById('save-key').onclick = () => {
         const apiKey = document.getElementById('api-key').value;
-        parent.postMessage({ pluginMessage: { type: 'save-api-key', apiKey } }, '*');
-        alert('API 키가 저장되었습니다.');
+        const apiType = document.getElementById('api-type').value;
+        parent.postMessage({ pluginMessage: { type: 'save-api-key', apiKey, apiType } }, '*');
+        alert(apiType.toUpperCase() + ' API 키가 저장되었습니다.');
       };
 
       // 아이콘 생성
       document.getElementById('generate').onclick = () => {
         const prompt = document.getElementById('prompt').value;
-        parent.postMessage({ pluginMessage: { type: 'generate-icon', prompt } }, '*');
+        const apiType = document.getElementById('api-type').value;
+        // 버튼 비활성화 및 로딩 표시
+        const btn = document.getElementById('generate');
+        btn.disabled = true;
+        btn.textContent = '로딩 중...';
+        parent.postMessage({ pluginMessage: { type: 'generate-icon', prompt, apiType } }, '*');
       };
 
-      // 저장된 키 불러오기(있으면 입력란에 표시)
+      // 드롭다운 변경 시 clientStorage에 저장 및 API Key 요청
+      document.getElementById('api-type').onchange = () => {
+        const apiType = document.getElementById('api-type').value;
+        parent.postMessage({ pluginMessage: { type: 'save-api-type', apiType } }, '*');
+        parent.postMessage({ pluginMessage: { type: 'get-api-key', apiType } }, '*');
+      };
+
+      // 플러그인 실행 시 드롭다운 값 요청
+      document.addEventListener('DOMContentLoaded', () => {
+        parent.postMessage({ pluginMessage: { type: 'get-api-type' } }, '*');
+      });
+
+      // 드롭다운 값 및 API Key 반영
       window.onmessage = (event) => {
-        const { apiKey } = event.data.pluginMessage || {};
-        if (apiKey) {
-          document.getElementById('api-key').value = apiKey;
+        const { apiType, apiKey, generationDone } = event.data.pluginMessage || {};
+        if (apiType) {
+          document.getElementById('api-type').value = apiType;
+          parent.postMessage({ pluginMessage: { type: 'get-api-key', apiType } }, '*');
+        }
+        if (apiKey !== undefined) {
+          document.getElementById('api-key').value = apiKey || '';
+        }
+        if (generationDone) {
+          const btn = document.getElementById('generate');
+          btn.disabled = false;
+          btn.textContent = '아이콘 생성';
         }
       };
-      // 플러그인 실행 시 키 요청
-      parent.postMessage({ pluginMessage: { type: 'get-api-key' } }, '*');
     </script>
   </body>
 </html>
