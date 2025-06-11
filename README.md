@@ -83,7 +83,3 @@ It strictly follows a design system guideline, allowing anyone to quickly and co
 MIT License
 
 ---
-
-## 🙋 Contact / Contributing
-
-- Author: Hyein Kim
